@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: guqin
+      POSTGRES_USER: guqin
+      POSTGRES_PASSWORD: guqin_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: ./woodblank-ledger
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py seed_demo &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./woodblank-ledger:/app
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_SETTINGS_MODULE: woodblank_ledger.settings
+      DB_HOST: db
+      DB_NAME: guqin
+      DB_USER: guqin
+      DB_PASSWORD: guqin_secret
+      DB_PORT: "5432"
+    depends_on:
+      - db
+
+  frontend:
+    build: ./tone-trial
+    command: npm start
+    volumes:
+      - ./tone-trial:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:8000
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
