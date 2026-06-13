@@ -27,11 +27,6 @@ pnpm-debug.log*
 !.yarn/sdks/
 !.yarn/versions/
 
-# Environment files
-.env
-.env.*
-!.env.example
-!.env.template
 
 # Java / Maven / Gradle backend
 target/
