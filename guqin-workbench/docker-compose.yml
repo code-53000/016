@@ -14,10 +14,6 @@ services:
 
   backend:
     build: ./woodblank-ledger
-    command: >
-      sh -c "python manage.py migrate &&
-             python manage.py seed_demo &&
-             python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./woodblank-ledger:/app
     ports:
@@ -31,6 +27,7 @@ services:
       DB_PORT: "5432"
     depends_on:
       - db
+    restart: on-failure
 
   frontend:
     build: ./tone-trial
@@ -42,8 +39,13 @@ services:
       - "3000:3000"
     environment:
       REACT_APP_API_URL: http://localhost:8000
+      CI: "true"
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
     depends_on:
       - backend
+    stdin_open: true
+    tty: true
 
 volumes:
   pgdata:
